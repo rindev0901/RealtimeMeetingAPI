@@ -14,7 +14,8 @@ namespace RealtimeMeetingAPI.Data
        : base(options)
         {
         }
-
+        public DbSet<Room> Rooms { get; set; }
+        public DbSet<Connection> Connections { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

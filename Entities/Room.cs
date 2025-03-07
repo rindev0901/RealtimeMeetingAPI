@@ -10,9 +10,9 @@ namespace RealtimeMeetingAPI.Entities
         public int RoomId { get; set; }
         public string RoomName { get; set; } = string.Empty;
         public int CountMember { get; set; }
-
-        public AppUser AppUser { get; set; }
+        [ForeignKey(nameof(AppUser))]
         public Guid UserId { get; set; }
+        public AppUser AppUser { get; set; }
         public ICollection<Connection> Connections { get; set; } = new List<Connection>();
     }
 

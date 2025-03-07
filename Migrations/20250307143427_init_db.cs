@@ -168,6 +168,45 @@ namespace RealtimeMeetingAPI.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Rooms",
+                columns: table => new
+                {
+                    RoomId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    RoomName = table.Column<string>(type: "text", nullable: false),
+                    CountMember = table.Column<int>(type: "integer", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Rooms", x => x.RoomId);
+                    table.ForeignKey(
+                        name: "FK_Rooms_AppUser_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AppUser",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Connections",
+                columns: table => new
+                {
+                    ConnectionId = table.Column<string>(type: "text", nullable: false),
+                    UserName = table.Column<string>(type: "text", nullable: false),
+                    RoomId = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Connections", x => x.ConnectionId);
+                    table.ForeignKey(
+                        name: "FK_Connections_Rooms_RoomId",
+                        column: x => x.RoomId,
+                        principalTable: "Rooms",
+                        principalColumn: "RoomId");
+                });
+
             migrationBuilder.CreateIndex(
                 name: "RoleNameIndex",
                 table: "AppRole",
@@ -204,6 +243,16 @@ namespace RealtimeMeetingAPI.Migrations
                 name: "IX_AppUserRole_RoleId",
                 table: "AppUserRole",
                 column: "RoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Connections_RoomId",
+                table: "Connections",
+                column: "RoomId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Rooms_UserId",
+                table: "Rooms",
+                column: "UserId");
         }
 
         /// <inheritdoc />
@@ -225,7 +274,13 @@ namespace RealtimeMeetingAPI.Migrations
                 name: "AppUserTokens");
 
             migrationBuilder.DropTable(
+                name: "Connections");
+
+            migrationBuilder.DropTable(
                 name: "AppRole");
+
+            migrationBuilder.DropTable(
+                name: "Rooms");
 
             migrationBuilder.DropTable(
                 name: "AppUser");

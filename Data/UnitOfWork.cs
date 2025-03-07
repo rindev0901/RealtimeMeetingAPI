@@ -15,6 +15,8 @@ namespace RealtimeMeetingAPI.Data
         }
         public IUserRepository UserRepository => new UserRepository(_context, _mapper);
 
+        public IRoomRepository RoomRepository => new RoomRepository(_context, _mapper);
+
         public async Task<bool> Complete()
         {
             return await _context.SaveChangesAsync() > 0;

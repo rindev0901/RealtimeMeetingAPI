@@ -5,6 +5,8 @@ namespace RealtimeMeetingAPI.Dtos
     public class RegisterDto
     {
         [Required]
+        [EmailAddress] // Ensures basic email validation
+        [RegularExpression(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", ErrorMessage = "Invalid email format.")]
         public string UserName { get; set; } = string.Empty;
 
         [Required]

@@ -12,7 +12,7 @@ using RealtimeMeetingAPI.Data;
 namespace RealtimeMeetingAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250307100855_init_db")]
+    [Migration("20250307143427_init_db")]
     partial class init_db
     {
         /// <inheritdoc />
@@ -257,6 +257,50 @@ namespace RealtimeMeetingAPI.Migrations
                     b.ToTable("AppUserRole", (string)null);
                 });
 
+            modelBuilder.Entity("RealtimeMeetingAPI.Entities.Connection", b =>
+                {
+                    b.Property<string>("ConnectionId")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("RoomId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("ConnectionId");
+
+                    b.HasIndex("RoomId");
+
+                    b.ToTable("Connections");
+                });
+
+            modelBuilder.Entity("RealtimeMeetingAPI.Entities.Room", b =>
+                {
+                    b.Property<int>("RoomId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("RoomId"));
+
+                    b.Property<int>("CountMember")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("RoomName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("RoomId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Rooms");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
                 {
                     b.HasOne("RealtimeMeetingAPI.Entities.AppUser", null)
@@ -314,6 +358,24 @@ namespace RealtimeMeetingAPI.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("RealtimeMeetingAPI.Entities.Connection", b =>
+                {
+                    b.HasOne("RealtimeMeetingAPI.Entities.Room", null)
+                        .WithMany("Connections")
+                        .HasForeignKey("RoomId");
+                });
+
+            modelBuilder.Entity("RealtimeMeetingAPI.Entities.Room", b =>
+                {
+                    b.HasOne("RealtimeMeetingAPI.Entities.AppUser", "AppUser")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AppUser");
+                });
+
             modelBuilder.Entity("RealtimeMeetingAPI.Entities.AppRole", b =>
                 {
                     b.Navigation("RoleClaims");
@@ -330,6 +392,11 @@ namespace RealtimeMeetingAPI.Migrations
                     b.Navigation("Tokens");
 
                     b.Navigation("UserRoles");
+                });
+
+            modelBuilder.Entity("RealtimeMeetingAPI.Entities.Room", b =>
+                {
+                    b.Navigation("Connections");
                 });
 #pragma warning restore 612, 618
         }
