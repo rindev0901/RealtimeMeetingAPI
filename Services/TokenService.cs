@@ -23,8 +23,11 @@ namespace RealtimeMeetingAPI.Services
         {
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.NameId, appUser.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.UniqueName, appUser.UserName)
+                new Claim(ClaimTypes.NameIdentifier, appUser.Id.ToString()),
+                new Claim(ClaimTypes.Name, appUser.UserName),
+                new Claim(ClaimTypes.GivenName, appUser.FullName),
+                new Claim("picture", appUser.PhotoUrl),
+                new Claim("last_active", appUser.LastActive.ToString()),
             };
 
             var roles = await _userManager.GetRolesAsync(appUser);

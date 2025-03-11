@@ -20,12 +20,12 @@ namespace RealtimeMeetingAPI.Repositories
             _mapper = mapper;
         }
 
-        public async Task<Room> GetRoomById(int roomId)
+        public async Task<Room> GetRoomById(Guid roomId)
         {
             return await _context.Rooms.Include(x => x.Connections).FirstOrDefaultAsync(x => x.RoomId == roomId);
         }
 
-        public async Task<RoomDto> GetRoomDtoById(int roomId)
+        public async Task<RoomDto> GetRoomDtoById(Guid roomId)
         {
             return await _context.Rooms.Where(r => r.RoomId == roomId).ProjectTo<RoomDto>(_mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync();//using Microsoft.EntityFrameworkCore;
@@ -53,7 +53,7 @@ namespace RealtimeMeetingAPI.Repositories
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<Room> DeleteRoom(int id)
+        public async Task<Room> DeleteRoom(Guid id)
         {
             var room = await _context.Rooms.FindAsync(id);
             if (room != null)
@@ -63,7 +63,7 @@ namespace RealtimeMeetingAPI.Repositories
             return room;
         }
 
-        public async Task<Room> EditRoom(int id, string newName)
+        public async Task<Room> EditRoom(Guid id, string newName)
         {
             var room = await _context.Rooms.FindAsync(id);
             if (room != null)
@@ -86,13 +86,20 @@ namespace RealtimeMeetingAPI.Repositories
             return await PagedList<RoomDto>.CreateAsync(list.ProjectTo<RoomDto>(_mapper.ConfigurationProvider).AsNoTracking(), roomParams.PageNumber, roomParams.PageSize);
         }
 
-        public async Task UpdateCountMember(int roomId, int count)
+        public async Task UpdateCountMember(Guid roomId, int count)
         {
             var room = await _context.Rooms.FindAsync(roomId);
             if (room != null)
             {
                 room.CountMember = count;
             }
+        }
+
+        public async Task<List<string>> GetRoomsForUser(Guid userId)
+        {
+            var list = _context.Rooms.AsQueryable();
+
+            return await list.Where(r => r.UserId == userId).AsNoTracking().Select(r => r.RoomId.ToString()).ToListAsync();
         }
     }
 }

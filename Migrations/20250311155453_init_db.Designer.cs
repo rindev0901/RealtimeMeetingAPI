@@ -12,7 +12,7 @@ using RealtimeMeetingAPI.Data;
 namespace RealtimeMeetingAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250307143427_init_db")]
+    [Migration("20250311155453_init_db")]
     partial class init_db
     {
         /// <inheritdoc />
@@ -262,8 +262,8 @@ namespace RealtimeMeetingAPI.Migrations
                     b.Property<string>("ConnectionId")
                         .HasColumnType("text");
 
-                    b.Property<int?>("RoomId")
-                        .HasColumnType("integer");
+                    b.Property<Guid?>("RoomId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("UserName")
                         .IsRequired()
@@ -278,11 +278,9 @@ namespace RealtimeMeetingAPI.Migrations
 
             modelBuilder.Entity("RealtimeMeetingAPI.Entities.Room", b =>
                 {
-                    b.Property<int>("RoomId")
+                    b.Property<Guid>("RoomId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("RoomId"));
+                        .HasColumnType("uuid");
 
                     b.Property<int>("CountMember")
                         .HasColumnType("integer");

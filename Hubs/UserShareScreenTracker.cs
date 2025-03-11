@@ -13,7 +13,7 @@ namespace RealtimeMeetingAPI.Hubs
             {
                 var temp = usersShareScreen.FirstOrDefault(x => x.UserName == user.UserName && x.RoomId == user.RoomId);
 
-                if (temp == null)//chua co online
+                if (temp == null) // No users have shared the screen in this room yet
                 {
                     usersShareScreen.Add(user);
                     isOnline = true;
@@ -39,7 +39,7 @@ namespace RealtimeMeetingAPI.Hubs
             return Task.FromResult(isOffline);
         }
 
-        public Task<UserConnectionDto> GetUserIsSharing(int roomId)
+        public Task<UserConnectionDto> GetUserIsSharing(Guid roomId)
         {
             UserConnectionDto temp = null;
             lock (usersShareScreen)
@@ -49,7 +49,7 @@ namespace RealtimeMeetingAPI.Hubs
             return Task.FromResult(temp);
         }
 
-        public Task<bool> DisconnectedByUser(string username, int roomId)
+        public Task<bool> DisconnectedByUser(string username, Guid roomId)
         {
             bool isOffline = false;
             lock (usersShareScreen)

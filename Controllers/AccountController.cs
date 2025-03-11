@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RealtimeMeetingAPI.Dtos;
 using RealtimeMeetingAPI.Entities;
+using RealtimeMeetingAPI.Extensions;
 using RealtimeMeetingAPI.Helpers;
 using RealtimeMeetingAPI.Interfaces;
 using RealtimeMeetingAPI.Responses;
@@ -93,14 +95,20 @@ namespace RealtimeMeetingAPI.Controllers
                 .SingleOrDefaultAsync(x => x.UserName == loginDto.UserName.ToLower());
 
             if (user == null)
-                return Unauthorized("Invalid Username");
+                return StatusCode(StatusCodes.Status401Unauthorized,
+                        Response<LoginResponse>.Result(null, "Invalid email or password", StatusCodes.Status401Unauthorized)
+                    );
 
             if (user.Locked)//true = locked
-                return BadRequest("This account is loked by admin");
+                return StatusCode(StatusCodes.Status403Forbidden,
+                        Response<LoginResponse>.Result(null, "This account is loked by admin", StatusCodes.Status403Forbidden)
+                    );
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
 
-            if (!result.Succeeded) return Unauthorized("Invalid password");
+            if (!result.Succeeded) return StatusCode(StatusCodes.Status401Unauthorized,
+                        Response<LoginResponse>.Result(null, "Invalid email or password", StatusCodes.Status401Unauthorized)
+                    );
 
             var loginResponse = new LoginResponse
             {
@@ -179,6 +187,22 @@ namespace RealtimeMeetingAPI.Controllers
                         Response<LoginResponse>.Result(loginResponse, "Login social account successfully", StatusCodes.Status200OK)
                     );
             }
+        }
+        [HttpGet("me")]
+        [Authorize]
+        public async Task<ActionResult<LoginResponse>> GetProfile()
+        {
+            var userId = HttpContext.User.GetUserId();
+            var user = await _userManager.Users
+                .FirstOrDefaultAsync(x => x.Id == userId);
+
+            if(user is null) return StatusCode(StatusCodes.Status401Unauthorized,
+                        Response<object>.Result(null, "User not authenticated", StatusCodes.Status401Unauthorized)
+                    );
+
+            return StatusCode(StatusCodes.Status200OK,
+                        Response<AppUser>.Result(user, "Get profile successfully", StatusCodes.Status200OK)
+                    );
         }
 
         private async Task<bool> UserExists(string username)

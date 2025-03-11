@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using RealtimeMeetingAPI.Dtos;
 using RealtimeMeetingAPI.Entities;
 using RealtimeMeetingAPI.Extensions;
+using RealtimeMeetingAPI.Helpers;
 using RealtimeMeetingAPI.Interfaces;
 
 namespace RealtimeMeetingAPI.Controllers
@@ -21,17 +22,35 @@ namespace RealtimeMeetingAPI.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet]
+        [HttpGet("list")]
         public async Task<ActionResult<IEnumerable<RoomDto>>> GetAllRooms([FromQuery] RoomParams roomParams)
         {
             var comments = await _unitOfWork.RoomRepository.GetAllRoomAsync(roomParams);
-            Response.AddPaginationHeader(comments.CurrentPage, comments.PageSize, comments.TotalCount, comments.TotalPages);
+            //Response.AddPaginationHeader(comments.CurrentPage, comments.PageSize, comments.TotalCount, comments.TotalPages);
 
             return Ok(comments);
         }
 
+        [HttpGet("list/{id:guid}")]
+        public async Task<ActionResult<Room>> GetRoomById([FromRoute] Guid id)
+        {
+            var room = await _unitOfWork.RoomRepository.GetRoomById(id);
+            if(room == null)
+            {
+                return StatusCode(StatusCodes.Status404NotFound,
+                        Response<object>.Result(null, "Room not already exist",
+                        StatusCodes.Status404NotFound)
+                    );
+            }
+            return StatusCode(StatusCodes.Status200OK,
+                        Response<Room>.Result(room, "Get room successfully",
+                        StatusCodes.Status200OK)
+                    );
+        }
+
         [HttpPost]
-        public async Task<ActionResult> AddRoom(string name)
+        [Route("create")]
+        public async Task<ActionResult> AddRoom([FromQuery]string name)
         {
             var room = new Room { RoomName = name, UserId = User.GetUserId() };
 
@@ -39,14 +58,22 @@ namespace RealtimeMeetingAPI.Controllers
 
             if (await _unitOfWork.Complete())
             {
-                return Ok(await _unitOfWork.RoomRepository.GetRoomDtoById(room.RoomId));
+                var newRoom = await _unitOfWork.RoomRepository.GetRoomDtoById(room.RoomId);
+                return StatusCode(StatusCodes.Status200OK,
+                        Response<RoomDto>.Result(newRoom, "Add new room successfully",
+                        StatusCodes.Status200OK)
+                    );
             }
 
-            return BadRequest("Problem adding room");
+            return StatusCode(StatusCodes.Status400BadRequest,
+                        Response<object>.Result(null, "An error occurred while adding a new meeting",
+                        StatusCodes.Status400BadRequest)
+                    );
         }
 
         [HttpPut]
-        public async Task<ActionResult> EditRoom(int id, string editName)
+        [Route("update/{id:guid}")]
+        public async Task<ActionResult> EditRoom([FromRoute]Guid id, [FromQuery]string editName)
         {
             var room = await _unitOfWork.RoomRepository.EditRoom(id, editName);
             if (room != null)
@@ -68,8 +95,8 @@ namespace RealtimeMeetingAPI.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteRoom(int id)
+        [HttpDelete("delete/{id:guid}")]
+        public async Task<ActionResult> DeleteRoom([FromRoute]Guid id)
         {
             var entity = await _unitOfWork.RoomRepository.DeleteRoom(id);
 

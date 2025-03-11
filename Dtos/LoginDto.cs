@@ -9,7 +9,6 @@ namespace RealtimeMeetingAPI.Dtos
         [RegularExpression(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", ErrorMessage = "Invalid email format.")]
         public string UserName { get; set; }
         [Required]
-        [StringLength(20, MinimumLength = 8)]
         public string Password { get; set; }
     }
 

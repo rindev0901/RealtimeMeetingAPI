@@ -172,8 +172,7 @@ namespace RealtimeMeetingAPI.Migrations
                 name: "Rooms",
                 columns: table => new
                 {
-                    RoomId = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    RoomId = table.Column<Guid>(type: "uuid", nullable: false),
                     RoomName = table.Column<string>(type: "text", nullable: false),
                     CountMember = table.Column<int>(type: "integer", nullable: false),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false)
@@ -195,7 +194,7 @@ namespace RealtimeMeetingAPI.Migrations
                 {
                     ConnectionId = table.Column<string>(type: "text", nullable: false),
                     UserName = table.Column<string>(type: "text", nullable: false),
-                    RoomId = table.Column<int>(type: "integer", nullable: true)
+                    RoomId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {

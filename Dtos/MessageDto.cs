@@ -8,4 +8,3 @@
         public DateTime MessageSent { get; set; } = DateTime.UtcNow;
     }
 }
-}

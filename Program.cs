@@ -37,7 +37,8 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapHub<PresenceHub>("hubs/presence");
+app.MapHub<PresenceHub>("hubs/presence-hub");
+app.MapHub<ChatHub>("hubs/chat-hub");
 
 app.MapControllers();
 

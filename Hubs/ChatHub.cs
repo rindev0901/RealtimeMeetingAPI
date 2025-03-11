@@ -27,23 +27,24 @@ namespace RealtimeMeetingAPI.Hubs
         {
             var httpContext = Context.GetHttpContext();
             var roomId = httpContext.Request.Query["roomId"].ToString();
-            var roomIdInt = int.Parse(roomId);
+            var roomIdInt = Guid.Parse(roomId);
             var username = Context.User.GetUsername();
 
-            await _presenceTracker.UserConnected(new UserConnectionDto(username, roomIdInt), Context.ConnectionId);
+            await _presenceTracker.UserConnected(new UserConnectionDto(username, roomIdInt), Context.ConnectionId); // Danh sách quản lý các user với các connection của từng user đó
 
-            await Groups.AddToGroupAsync(Context.ConnectionId, roomId);//khi user click vao room se join vao
-            await AddConnectionToGroup(roomIdInt); // luu db DbSet<Connection> de khi disconnect biet
+            await Groups.AddToGroupAsync(Context.ConnectionId, roomId); // Thêm roomId bằng connection cho Hub Groups quản lý
+            await AddConnectionToGroup(roomIdInt); // Và đồng bộ vào csdl
 
-            //var usersOnline = await _unitOfWork.UserRepository.GetUsersOnlineAsync(currentUsers);
-            var oneUserOnline = await _unitOfWork.UserRepository.GetMemberAsync(username);
+            var oneUserOnline = await _unitOfWork.UserRepository.GetMemberAsync(username); // Lấy thông tin user hiện tại đang lập connection
             await Clients.Group(roomId).SendAsync("UserOnlineInGroup", oneUserOnline);
 
-            var currentUsers = await _presenceTracker.GetOnlineUsers(roomIdInt);
+            var currentUsers = await _presenceTracker.GetOnlineUsers(roomIdInt); // get users from dictionary by roomid
+
             await _unitOfWork.RoomRepository.UpdateCountMember(roomIdInt, currentUsers.Count);
             await _unitOfWork.Complete();
 
             var currentConnections = await _presenceTracker.GetConnectionsForUser(new UserConnectionDto(username, roomIdInt));
+
             await _presenceHub.Clients.AllExcept(currentConnections).SendAsync("CountMemberInGroup",
                    new { roomId = roomIdInt, countMember = currentUsers.Count });
 
@@ -72,7 +73,6 @@ namespace RealtimeMeetingAPI.Hubs
                 await Clients.Group(group.RoomId.ToString()).SendAsync("UserOfflineInGroup", temp);
 
                 var currentUsers = await _presenceTracker.GetOnlineUsers(group.RoomId);
-
                 await _unitOfWork.RoomRepository.UpdateCountMember(group.RoomId, currentUsers.Count);
                 await _unitOfWork.Complete();
 
@@ -131,7 +131,7 @@ namespace RealtimeMeetingAPI.Hubs
             }
         }
 
-        public async Task ShareScreen(int roomid, bool isShareScreen)
+        public async Task ShareScreen(Guid roomid, bool isShareScreen)
         {
             if (isShareScreen)//true is doing share
             {
@@ -146,7 +146,7 @@ namespace RealtimeMeetingAPI.Hubs
             //var group = await _unitOfWork.RoomRepository.GetRoomForConnection(Context.ConnectionId);
         }
 
-        public async Task ShareScreenToUser(int roomid, string username, bool isShare)
+        public async Task ShareScreenToUser(Guid roomid, string username, bool isShare)
         {
             var currentBeginConnectionsUser = await _presenceTracker.GetConnectionsForUser(new UserConnectionDto(username, roomid));
             if (currentBeginConnectionsUser.Count > 0)
@@ -158,13 +158,12 @@ namespace RealtimeMeetingAPI.Hubs
             var group = await _unitOfWork.RoomRepository.GetRoomForConnection(Context.ConnectionId);
             var connection = group.Connections.FirstOrDefault(x => x.ConnectionId == Context.ConnectionId);
             _unitOfWork.RoomRepository.RemoveConnection(connection);
-
             if (await _unitOfWork.Complete()) return group;
 
             throw new HubException("Fail to remove connection from room");
         }
 
-        private async Task<Room> AddConnectionToGroup(int roomId)
+        private async Task<Room> AddConnectionToGroup(Guid roomId)
         {
             var group = await _unitOfWork.RoomRepository.GetRoomById(roomId);
             var connection = new Connection(Context.ConnectionId, Context.User.GetUsername());

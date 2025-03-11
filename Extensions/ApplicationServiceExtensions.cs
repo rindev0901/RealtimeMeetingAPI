@@ -5,6 +5,7 @@ using AutoMapper;
 using RealtimeMeetingAPI.Interfaces;
 using RealtimeMeetingAPI.Services;
 using RealtimeMeetingAPI.Helpers;
+using RealtimeMeetingAPI.Hubs;
 
 namespace RealtimeMeetingAPI.Extensions
 {
@@ -14,6 +15,8 @@ namespace RealtimeMeetingAPI.Extensions
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration config)
         {
             services.AddSingleton<SoftDeleteInterceptor>();
+            services.AddSingleton<UserShareScreenTracker>();  // Add this line
+            services.AddSingleton<PresenceTracker>();  // Add this line
 
             services.AddDbContext<ApplicationDbContext>((sp, options) => options
                     .UseNpgsql(config.GetConnectionString("DefaultConnection"))
@@ -31,7 +34,7 @@ namespace RealtimeMeetingAPI.Extensions
                 options.AddPolicy(name: MyAllowSpecificOrigins,
                                   builder =>
                                   {
-                                      builder.WithOrigins("https://localhost:3000")
+                                      builder.WithOrigins("https://localhost:3000", "http://localhost:65477")
                                       .AllowAnyHeader()
                                       .AllowAnyMethod()
                                       .AllowCredentials();

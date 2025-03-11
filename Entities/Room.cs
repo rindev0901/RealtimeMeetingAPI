@@ -6,8 +6,7 @@ namespace RealtimeMeetingAPI.Entities
     public class Room
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int RoomId { get; set; }
+        public Guid RoomId { get; set; }
         public string RoomName { get; set; } = string.Empty;
         public int CountMember { get; set; }
         [ForeignKey(nameof(AppUser))]

@@ -46,7 +46,7 @@ namespace RealtimeMeetingAPI.Hubs
             return Task.FromResult(isOffline);
         }
 
-        public Task<List<UserConnectionDto>> GetOnlineUsers(int roomId)
+        public Task<List<UserConnectionDto>> GetOnlineUsers(Guid roomId)
         {
             List<UserConnectionDto> onlineUsers = new();
             lock (OnlineUsers)
@@ -87,9 +87,6 @@ namespace RealtimeMeetingAPI.Hubs
                 }
             }
             return Task.FromResult(connectionIds);
-        }
-        public async Task SendPresenceForOnlineUsers()
-        {
         }
     }
 }

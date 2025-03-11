@@ -7,7 +7,7 @@ namespace RealtimeMeetingAPI.Extensions
     {
         public static string GetUsername(this ClaimsPrincipal user)
         {
-            var userName = user.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.UniqueName)?.Value;
+            var userName = user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
 
             if (!string.IsNullOrEmpty(userName))
             {
@@ -18,7 +18,7 @@ namespace RealtimeMeetingAPI.Extensions
 
         public static Guid GetUserId(this ClaimsPrincipal user)
         {
-            var claimValue = user.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.NameId)?.Value;
+            var claimValue = user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
             if (Guid.TryParse(claimValue, out var userId))
             {

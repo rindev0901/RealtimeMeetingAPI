@@ -2,7 +2,7 @@
 {
     public class RoomDto
     {
-        public int RoomId { get; set; }
+        public Guid RoomId { get; set; }
         public string RoomName { get; set; } = string.Empty;
         public string UserId { get; set; } = string.Empty;
         public string UserName { get; set; } = string.Empty;

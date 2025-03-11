@@ -259,8 +259,8 @@ namespace RealtimeMeetingAPI.Migrations
                     b.Property<string>("ConnectionId")
                         .HasColumnType("text");
 
-                    b.Property<int?>("RoomId")
-                        .HasColumnType("integer");
+                    b.Property<Guid?>("RoomId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("UserName")
                         .IsRequired()
@@ -275,11 +275,9 @@ namespace RealtimeMeetingAPI.Migrations
 
             modelBuilder.Entity("RealtimeMeetingAPI.Entities.Room", b =>
                 {
-                    b.Property<int>("RoomId")
+                    b.Property<Guid>("RoomId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("RoomId"));
+                        .HasColumnType("uuid");
 
                     b.Property<int>("CountMember")
                         .HasColumnType("integer");

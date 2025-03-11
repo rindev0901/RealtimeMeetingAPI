@@ -6,15 +6,16 @@ namespace RealtimeMeetingAPI.Interfaces
 {
     public interface IRoomRepository
     {
-        Task<Room> GetRoomById(int roomId);
+        Task<Room> GetRoomById(Guid roomId);
         Task<Room> GetRoomForConnection(string connectionId);
         void RemoveConnection(Connection connection);
         void AddRoom(Room room);
-        Task<Room> DeleteRoom(int id);
-        Task<Room> EditRoom(int id, string newName);
+        Task<Room> DeleteRoom(Guid id);
+        Task<List<string>> GetRoomsForUser(Guid userId);
+        Task<Room> EditRoom(Guid id, string newName);
         Task DeleteAllRoom();
         Task<PagedList<RoomDto>> GetAllRoomAsync(RoomParams roomParams);
-        Task<RoomDto> GetRoomDtoById(int roomId);
-        Task UpdateCountMember(int roomId, int count);
+        Task<RoomDto> GetRoomDtoById(Guid roomId);
+        Task UpdateCountMember(Guid roomId, int count);
     }
 }
