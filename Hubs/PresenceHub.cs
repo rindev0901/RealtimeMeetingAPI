@@ -18,21 +18,23 @@ namespace RealtimeMeetingAPI.Hubs
         }
         public override async Task OnConnectedAsync()
         {
-            var isOnline = await _tracker.UserConnected(new UserConnectionDto(Context.User.GetUsername(), null), Context.ConnectionId);
+            var userId = Context.User.GetUserId();
+            var isOnline = await _tracker.UserConnected(new UserConnectionDto(userId, null), Context.ConnectionId);
             await SendUserOnlineForGroups(Context.User.GetUserId(), isOnline);
         }
 
         public override async Task OnDisconnectedAsync(Exception exception)
         {
-            var isOffline = await _tracker.UserDisconnected(new UserConnectionDto(Context.User.GetUsername(), null), Context.ConnectionId);
-            await SendUserOnlineForGroups(Context.User.GetUserId(), isOffline);
+            var userId = Context.User.GetUserId();
+            var isOffline = await _tracker.UserDisconnected(new UserConnectionDto(userId, null), Context.ConnectionId);
+            await SendUserOnlineForGroups(userId, isOffline);
             await base.OnDisconnectedAsync(exception);
         }
 
         public async Task SendUserOnlineForGroups(Guid userId, bool isOnline)
         {
             var listGroupUserJoined = await _unitOfWork.RoomRepository.GetRoomsForUser(userId);
-            await Clients.Groups(listGroupUserJoined).SendAsync("OnUserOnline", new { userId = Context.User.GetUserId(), isOnline });
+            await Clients.Groups(listGroupUserJoined).SendAsync("OnUserOnline", new { userId , isOnline });
         }
     }
 }

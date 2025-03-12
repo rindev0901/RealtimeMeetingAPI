@@ -6,6 +6,7 @@ using RealtimeMeetingAPI.Dtos;
 using RealtimeMeetingAPI.Entities;
 using RealtimeMeetingAPI.Helpers;
 using RealtimeMeetingAPI.Interfaces;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace RealtimeMeetingAPI.Repositories
 {
@@ -29,11 +30,11 @@ namespace RealtimeMeetingAPI.Repositories
             return await _context.Users.FirstOrDefaultAsync(u => u.UserName == username);
         }
 
-        public async Task<MemberDto?> GetMemberAsync(string username)
+        public async Task<MemberDto?> GetMemberAsync(Guid userId)
         {
             //Instead of retrieving the full AppUser entity and then mapping it in-memory,
             //ProjectTo<MemberDto>() generates an optimized SQL query that selects only the necessary fields defined in MemberDto.
-            return await _context.Users.Where(x => x.UserName == username)
+            return await _context.Users.Where(x => x.Id == userId)
                 .ProjectTo<MemberDto>(_mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync();
         }
@@ -43,7 +44,7 @@ namespace RealtimeMeetingAPI.Repositories
             var listUserOnline = new List<MemberDto>();
             foreach (var u in userOnlines)
             {
-                var user = await _context.Users.Where(x => x.UserName == u.UserName)
+                var user = await _context.Users.Where(x => x.Id == u.UserId)
                 .ProjectTo<MemberDto>(_mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync();
 
@@ -76,6 +77,11 @@ namespace RealtimeMeetingAPI.Repositories
                 user.Locked = !user.Locked;
             }
             return user;
+        }
+
+        public async Task<List<MemberDto>> GetMemberByIdsAsync(List<Guid> userIds)
+        {
+            return await _context.Users.Where(u => userIds.Contains(u.Id)).ProjectTo<MemberDto>(_mapper.ConfigurationProvider).AsNoTracking().ToListAsync();
         }
     }
 }

@@ -9,9 +9,11 @@ namespace RealtimeMeetingAPI.Helpers
         public AutoMapperProfiles()
         {
             // Source => Des
-            CreateMap<AppUser, MemberDto>();
+            CreateMap<AppUser, MemberDto>()
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Id));
 
-            CreateMap<RegisterDto, AppUser>();
+            CreateMap<RegisterDto, AppUser>()
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.UserName));
 
             CreateMap<Room, RoomDto>()
                 .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.AppUser.FullName))

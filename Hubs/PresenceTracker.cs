@@ -11,7 +11,7 @@ namespace RealtimeMeetingAPI.Hubs
             bool isOnline = false;
             lock (OnlineUsers)
             {
-                var temp = OnlineUsers.FirstOrDefault(x => x.Key.UserName == user.UserName && x.Key.RoomId == user.RoomId);
+                var temp = OnlineUsers.FirstOrDefault(x => x.Key.UserId == user.UserId && x.Key.RoomId == user.RoomId);
                 if (temp.Key == null) //Not has connection
                 {
                     OnlineUsers.Add(user, new List<string> { connectionId });
@@ -31,7 +31,7 @@ namespace RealtimeMeetingAPI.Hubs
             bool isOffline = false;
             lock (OnlineUsers)
             {
-                var temp = OnlineUsers.FirstOrDefault(x => x.Key.UserName == user.UserName && x.Key.RoomId == user.RoomId);
+                var temp = OnlineUsers.FirstOrDefault(x => x.Key.UserId == user.UserId && x.Key.RoomId == user.RoomId);
                 if (temp.Key == null)
                     return Task.FromResult(isOffline);
 
@@ -56,13 +56,23 @@ namespace RealtimeMeetingAPI.Hubs
 
             return Task.FromResult(onlineUsers);
         }
+        public Task<List<Guid>> GetOnlineUserIds(Guid roomId)
+        {
+            List<Guid> onlineUsers = new();
+            lock (OnlineUsers)
+            {
+                onlineUsers = OnlineUsers.Where(u => u.Key.RoomId == roomId).Select(k => k.Key).Select(u => u.UserId).ToList();
+            }
+
+            return Task.FromResult(onlineUsers);
+        }
 
         public Task<List<string>> GetConnectionsForUser(UserConnectionDto user)
         {
             List<string> connectionIds = new List<string>();
             lock (OnlineUsers)
             {
-                var temp = OnlineUsers.FirstOrDefault(x => x.Key.UserName == user.UserName && x.Key.RoomId == user.RoomId);
+                var temp = OnlineUsers.FirstOrDefault(x => x.Key.UserId == user.UserId && x.Key.RoomId == user.RoomId);
                 if (temp.Key != null)
                 {
                     connectionIds = OnlineUsers.GetValueOrDefault(temp.Key);
@@ -71,13 +81,13 @@ namespace RealtimeMeetingAPI.Hubs
             return Task.FromResult(connectionIds);
         }
 
-        public Task<List<string>> GetConnectionsForUsername(string username)
+        public Task<List<string>> GetConnectionsForUsername(Guid userId)
         {
             List<string> connectionIds = new List<string>();
             lock (OnlineUsers)
             {
                 // 1 user co nhieu lan dang nhap
-                var listTemp = OnlineUsers.Where(x => x.Key.UserName == username).ToList();
+                var listTemp = OnlineUsers.Where(x => x.Key.UserId == userId).ToList();
                 if (listTemp.Count > 0)
                 {
                     foreach (var user in listTemp)

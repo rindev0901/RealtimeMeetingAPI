@@ -11,7 +11,7 @@ namespace RealtimeMeetingAPI.Hubs
             bool isOnline = false;
             lock (usersShareScreen)
             {
-                var temp = usersShareScreen.FirstOrDefault(x => x.UserName == user.UserName && x.RoomId == user.RoomId);
+                var temp = usersShareScreen.FirstOrDefault(x => x.UserId == user.UserId && x.RoomId == user.RoomId);
 
                 if (temp == null) // No users have shared the screen in this room yet
                 {
@@ -27,7 +27,7 @@ namespace RealtimeMeetingAPI.Hubs
             bool isOffline = false;
             lock (usersShareScreen)
             {
-                var temp = usersShareScreen.FirstOrDefault(x => x.UserName == user.UserName && x.RoomId == user.RoomId);
+                var temp = usersShareScreen.FirstOrDefault(x => x.UserId == user.UserId && x.RoomId == user.RoomId);
                 if (temp == null)
                     return Task.FromResult(isOffline);
                 else
@@ -49,12 +49,12 @@ namespace RealtimeMeetingAPI.Hubs
             return Task.FromResult(temp);
         }
 
-        public Task<bool> DisconnectedByUser(string username, Guid roomId)
+        public Task<bool> DisconnectedByUser(Guid userId, Guid roomId)
         {
             bool isOffline = false;
             lock (usersShareScreen)
             {
-                var temp = usersShareScreen.FirstOrDefault(x => x.UserName == username && x.RoomId == roomId);
+                var temp = usersShareScreen.FirstOrDefault(x => x.UserId == userId && x.RoomId == roomId);
                 if (temp != null)
                 {
                     isOffline = true;

@@ -2,12 +2,12 @@
 {
     public class UserConnectionDto
     {
-        public UserConnectionDto(string userName, Guid? roomId)
+        public UserConnectionDto(Guid userId, Guid? roomId)
         {
-            UserName = userName;
+            UserId = userId;
             RoomId = roomId;
         }
-        public string UserName { get; set; }
+        public Guid UserId { get; set; }
         public Guid? RoomId { get; set; }
     }
 }
